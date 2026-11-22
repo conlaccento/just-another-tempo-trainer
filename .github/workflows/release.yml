@@ -1,6 +1,6 @@
 name: Release
 
-# Push a tag like v0.2.0 to build the Windows and macOS installers and attach them
+# Push a tag like v0.2.0 to build the Windows, macOS and Linux installers and attach them
 # to a draft GitHub release. Review the draft, then publish it.
 on:
   push:
@@ -21,6 +21,8 @@ jobs:
             args: --target x86_64-apple-darwin
           - platform: windows-latest
             args: ""
+          - platform: ubuntu-22.04
+            args: ""
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
@@ -34,6 +36,11 @@ jobs:
       - uses: swatinem/rust-cache@v2
         with:
           workspaces: src-tauri -> target
+      - name: Install Linux build dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
       - run: npm ci
       - run: npm test
       - uses: tauri-apps/tauri-action@v0
@@ -43,7 +50,7 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: Tempo Trainer ${{ github.ref_name }}
           releaseBody: |
-            Downloads: `.dmg` for macOS (`aarch64` = Apple Silicon, `x64` = Intel), `.exe` or `.msi` for Windows.
+            Downloads: `.dmg` for macOS (`aarch64` = Apple Silicon, `x64` = Intel), `.exe` or `.msi` for Windows, `.AppImage`, `.deb` or `.rpm` for Linux.
             The app is not signed: see the README for how to open it the first time.
           releaseDraft: true
           prerelease: false

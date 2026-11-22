@@ -42,7 +42,6 @@
           <canvas id="wave" class="wave"></canvas>
           <div class="wave-meta">
             <span class="time"><span id="cur" class="mono">0:00.0</span> / <span id="dur" class="mono">0:00</span></span>
-            <span class="muted small" data-i18n="loopHint"></span>
           </div>
         </div>
 
@@ -55,13 +54,6 @@
               <svg class="i-pause" viewBox="0 0 24 24"><path d="M5 4h5v16H5zM14 4h5v16h-5z" fill="currentColor"/></svg>
             </button>
             <button id="fwdBtn" class="icon-btn" type="button" data-i18n-title="forward"><svg viewBox="0 0 24 24"><path d="m12 6 9 6-9 6zM3 6l9 6-9 6z" fill="currentColor"/></svg></button>
-          </div>
-          <div class="group loop-group" role="group" data-i18n-aria="loop">
-            <span class="label" data-i18n="loop"></span>
-            <button id="setABtn" class="secondary small" type="button" data-i18n="setA"></button>
-            <button id="setBBtn" class="secondary small" type="button" data-i18n="setB"></button>
-            <button id="loopBtn" class="secondary small toggle" type="button" aria-pressed="false" data-i18n="loopOn"></button>
-            <button id="clearLoopBtn" class="link-button" type="button" data-i18n="clearLoop"></button>
           </div>
         </div>
 
@@ -96,24 +88,6 @@
             <div id="presets" class="presets"></div>
           </section>
 
-          <section class="panel" aria-labelledby="trainerTitle">
-            <h2 id="trainerTitle" class="heading heading-triangle" data-i18n="trainer"></h2>
-            <label class="checkbox-field">
-              <input id="trainerOn" type="checkbox" />
-              <span data-i18n="trainerOn"></span>
-            </label>
-            <p class="trainer-line">
-              <span data-i18n="trainerStep"></span>
-              <input id="trainerStep" class="mini" type="number" min="1" max="50" step="1" value="2" />
-              <span data-i18n="trainerEvery"></span>
-              <input id="trainerEvery" class="mini" type="number" min="1" max="50" step="1" value="2" />
-              <span data-i18n="trainerLoops"></span>
-              <input id="trainerMax" class="mini" type="number" min="5" max="600" step="1" />
-              BPM
-            </p>
-            <p id="trainerHint" class="muted small" data-i18n="trainerNeedsLoop"></p>
-          </section>
-
           <section class="panel" aria-labelledby="soundTitle">
             <h2 id="soundTitle" class="heading heading-circle" data-i18n="soundTitle"></h2>
             <div class="row">
@@ -122,10 +96,6 @@
               <output id="pitchOut" class="mono pitch-out" aria-live="off">0</output>
               <button id="pitchUp" class="secondary small step" type="button" aria-label="+1">+</button>
               <span class="muted small" data-i18n="semitones"></span>
-            </div>
-            <div class="row">
-              <label for="volRange" class="label" data-i18n="volume"></label>
-              <input id="volRange" type="range" min="0" max="1.5" step="0.01" value="1" />
             </div>
           </section>
         </div>
@@ -136,8 +106,6 @@
             <dt><kbd>Space</kbd></dt><dd data-i18n="scSpace"></dd>
             <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd data-i18n="scArrows"></dd>
             <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd data-i18n="scUpDown"></dd>
-            <dt><kbd>A</kbd> <kbd>B</kbd></dt><dd data-i18n="scAB"></dd>
-            <dt><kbd>L</kbd></dt><dd data-i18n="scL"></dd>
             <dt><kbd>T</kbd></dt><dd data-i18n="scT"></dd>
             <dt><kbd>Home</kbd></dt><dd data-i18n="scHome"></dd>
           </dl>

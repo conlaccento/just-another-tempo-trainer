@@ -4,17 +4,16 @@ Slow a song down to practise it, without changing its pitch.
 
 Open an MP3 (or WAV, FLAC, M4A, OGG). Tempo Trainer detects its BPM, and you choose the tempo you want to practise at. It plays the song at that tempo straight away, in the original key.
 
-> 🇮🇹 **In breve:** apri un brano, l'app ne rileva i BPM, scegli i BPM a cui vuoi esercitarti e lo ascolti rallentato senza che cambi la tonalità. C'è anche il loop A–B per ripetere un passaggio, con un aumento graduale della velocità. L'interfaccia è in italiano se il sistema è in italiano.
+> 🇮🇹 **In breve:** apri un brano, l'app ne rileva i BPM, scegli i BPM a cui vuoi esercitarti e lo ascolti rallentato senza che cambi la tonalità. L'interfaccia è in italiano se il sistema è in italiano.
 
 ## Features
 
 - **BPM detection** on load. You can correct the result: ÷2 / ×2 fix half- or double-tempo readings, you can type the value in, or tap along with **Tap**.
 - **Practice BPM**: type the target BPM, or use the speed slider (25–150 %) and the presets (50 %, 60 %, 70 %, 75 %, 80 %, 90 %, 100 %). The tempo changes live, during playback.
 - **Pitch preserved**, using [Signalsmith Stretch](https://signalsmith-audio.co.uk/code/stretch/), a high-quality time-stretching library.
-- **A–B loop**: drag across the waveform, or press `A` / `B` while the song plays. You can drag the loop edges to adjust them.
-- **Speed trainer**: on each repeat of the loop, the tempo goes up by a few BPM until it reaches your goal.
+- **Waveform**: click or drag on it to jump to any point of the song.
 - **Transpose** ±12 semitones, for example to match a tuned-down guitar.
-- **Per-song memory**: the app remembers the BPM, practice tempo, loop and transposition for each file.
+- **Per-song memory**: the app remembers the BPM, practice tempo and transposition for each file.
 - Small (~3 MB) and works offline. No account, no tracking.
 
 ### Keyboard shortcuts
@@ -24,10 +23,8 @@ Open an MP3 (or WAV, FLAC, M4A, OGG). Tempo Trainer detects its BPM, and you cho
 | `Space` | Play / pause |
 | `←` `→` | Back / forward 5 s |
 | `↑` `↓` | Practice BPM ±1 |
-| `A` `B` | Set loop start / end at the current position |
-| `L` | Loop on / off |
 | `T` | Tap tempo |
-| `Home` | Back to start (or to the loop start) |
+| `Home` | Back to start |
 
 ## Download and install
 
@@ -47,9 +44,13 @@ Alternatively, in Terminal: `xattr -cr "/Applications/Tempo Trainer.app"`
 
 If SmartScreen shows "Windows protected your PC", click **More info → Run anyway**.
 
+**Linux** (`.AppImage`, `.deb` or `.rpm`)
+
+Make the AppImage executable (`chmod +x Tempo*.AppImage`) and run it, or install the `.deb` / `.rpm` package. The app needs WebKitGTK 4.1, plus the GStreamer plugins to decode MP3 (`gstreamer1.0-plugins-good` on Debian/Ubuntu). The Linux build is less tested than the macOS and Windows ones.
+
 ## How it works
 
-- The whole app is a web page (TypeScript + Web Audio) running in [Tauri](https://tauri.app). It uses the system's own web engine (WebView2 on Windows, WebKit on macOS), which is why the installers are so small.
+- The whole app is a web page (TypeScript + Web Audio) running in [Tauri](https://tauri.app). It uses the system's own web engine (WebView2 on Windows, WebKit on macOS, WebKitGTK on Linux), which is why the installers are so small.
 - **BPM detection** ([`src/bpm.ts`](src/bpm.ts)) runs in a Web Worker:
   1. It computes an onset-strength envelope: the spectral flux of log energy in ⅓-octave bands.
   2. It picks the tempo from the autocorrelation of that envelope, with a mild preference for the common 70–160 BPM range.
@@ -60,7 +61,7 @@ If SmartScreen shows "Windows protected your PC", click **More info → Run anyw
 
 ## Development
 
-Requirements: [Node.js](https://nodejs.org) 22.18 or later, and [Rust](https://rustup.rs). On Windows you also need the [Tauri prerequisites](https://tauri.app/start/prerequisites/).
+Requirements: [Node.js](https://nodejs.org) 22.18 or later, and [Rust](https://rustup.rs). On Windows and Linux you also need the [Tauri prerequisites](https://tauri.app/start/prerequisites/).
 
 ```sh
 npm install
@@ -80,17 +81,17 @@ Update `version` in `package.json` and `src-tauri/tauri.conf.json`, then push a 
 git tag v0.2.0 && git push origin v0.2.0
 ```
 
-GitHub Actions builds the macOS (Apple Silicon and Intel) and Windows installers and attaches them to a **draft** release. Review the draft and publish it.
+GitHub Actions builds the macOS (Apple Silicon and Intel), Windows and Linux installers and attaches them to a **draft** release. Review the draft and publish it.
 
 ### Project layout
 
 ```
 src/
   main.ts          UI wiring
-  player.ts        playback, tempo, pitch, loop (Signalsmith Stretch)
+  player.ts        playback, tempo, pitch (Signalsmith Stretch)
   bpm.ts           tempo detection (pure TS, also used by the unit tests)
   bpm.worker.ts    runs bpm.ts off the UI thread
-  waveform.ts      waveform, playhead, A–B loop selection
+  waveform.ts      waveform and playhead, click to seek
   tap.ts           tap tempo
   i18n.ts          English / Italian texts
 src-tauri/         desktop shell (Tauri v2)

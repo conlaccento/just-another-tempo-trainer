@@ -3,7 +3,7 @@ import "@fontsource/jost/latin-500.css";
 import "@fontsource/jost/latin-700.css";
 import "./style.css";
 import { lang, t, type Strings } from "./i18n.ts";
-import { Player, type Loop } from "./player.ts";
+import { Player } from "./player.ts";
 import { Waveform } from "./waveform.ts";
 import { TapTempo } from "./tap.ts";
 import type { BpmResult } from "./bpm.ts";
@@ -34,13 +34,7 @@ const targetInput = $<HTMLInputElement>("targetInput");
 const bpmStatus = $("bpmStatus");
 const speedRange = $<HTMLInputElement>("speedRange");
 const speedOut = $("speedOut");
-const loopBtn = $<HTMLButtonElement>("loopBtn");
 const pitchOut = $("pitchOut");
-const trainerOn = $<HTMLInputElement>("trainerOn");
-const trainerStep = $<HTMLInputElement>("trainerStep");
-const trainerEvery = $<HTMLInputElement>("trainerEvery");
-const trainerMax = $<HTMLInputElement>("trainerMax");
-const trainerHint = $("trainerHint");
 
 // ---- state --------------------------------------------------------------------------
 const MIN_RATE = 0.25;
@@ -52,9 +46,6 @@ let fileKey = "";
 let originalBpm: number | null = null;
 let rate = 1;
 let semitones = 0;
-let loop: Loop | null = null;
-let loopEnabled = false;
-let loopsDone = 0;
 let loadToken = 0;
 const tapper = new TapTempo();
 
@@ -62,8 +53,6 @@ interface Saved {
   originalBpm?: number | null;
   rate?: number;
   semitones?: number;
-  loop?: Loop | null;
-  loopEnabled?: boolean;
 }
 
 // Per-song settings are a convenience only: storage may be unavailable.
@@ -77,7 +66,7 @@ function loadSaved(key: string): Saved {
 function save() {
   if (!fileKey) return;
   try {
-    localStorage.setItem(fileKey, JSON.stringify({ originalBpm, rate, semitones, loop, loopEnabled } satisfies Saved));
+    localStorage.setItem(fileKey, JSON.stringify({ originalBpm, rate, semitones } satisfies Saved));
   } catch {
     /* ignore */
   }
@@ -100,7 +89,6 @@ function getPlayer() {
       waveform.setPosition(time);
     };
     player.onEnded = () => updatePlayButton();
-    player.onLoopWrap = () => runTrainer();
     // Debug handle for automated browser tests.
     (window as unknown as { __player: Player }).__player = player;
   }
@@ -132,12 +120,8 @@ async function openFile(file: File) {
     originalBpm = saved.originalBpm ? Math.round(saved.originalBpm) : null;
     rate = clampRate(saved.rate ?? 1);
     semitones = saved.semitones ?? 0;
-    loop = saved.loop && saved.loop.end <= buffer.duration ? saved.loop : null;
-    loopEnabled = !!(loop && saved.loopEnabled);
-    loopsDone = 0;
     await p.setRate(rate);
     await p.setSemitones(semitones);
-    await applyLoop(false);
     renderTempo();
     renderPitch();
     updatePlayButton();
@@ -196,8 +180,6 @@ function renderTempo() {
     const pressed = hasBpm ? Math.round(originalBpm! * Number(b.dataset.rate)) === Math.round(originalBpm! * rate) : Math.abs(Number(b.dataset.rate) - rate) < 0.004;
     b.setAttribute("aria-pressed", String(pressed));
   });
-  if (hasBpm && !trainerMax.value) trainerMax.value = String(Math.round(originalBpm!));
-  renderTrainer();
 }
 
 async function setRate(r: number) {
@@ -218,7 +200,6 @@ function setOriginalBpm(bpm: number | null) {
   // Keep the practice BPM stable where possible when the reference changes.
   const target = originalBpm ? originalBpm * rate : null;
   originalBpm = bpm === null ? null : Math.round(bpm);
-  trainerMax.value = originalBpm ? String(Math.round(originalBpm)) : "";
   if (target && originalBpm) rate = clampRate(Math.round(target) / originalBpm);
   player?.setRate(rate);
   setBpmStatus("");
@@ -266,7 +247,7 @@ function tap() {
   setBpmStatus(t.tapping, "busy");
 }
 
-// ---- pitch & volume ---------------------------------------------------------------------
+// ---- pitch ---------------------------------------------------------------------
 function renderPitch() {
   pitchOut.textContent = semitones > 0 ? `+${semitones}` : String(semitones);
 }
@@ -278,7 +259,6 @@ async function setSemitones(s: number) {
 }
 $("pitchDown").addEventListener("click", () => setSemitones(semitones - 1));
 $("pitchUp").addEventListener("click", () => setSemitones(semitones + 1));
-$<HTMLInputElement>("volRange").addEventListener("input", (e) => player?.setVolume(Number((e.target as HTMLInputElement).value)));
 
 // ---- transport ------------------------------------------------------------------------
 function updatePlayButton() {
@@ -294,97 +274,14 @@ async function togglePlay() {
   updatePlayButton();
 }
 
-function seekBy(delta: number) {
-  if (player) seekTo(player.position + delta);
-}
-
-function seekTo(time: number) {
-  if (!player) return;
-  // Jumping outside the active loop means the user wants to leave it.
-  if (loop && loopEnabled && (time < loop.start - 0.01 || time > loop.end + 0.01)) {
-    loopEnabled = false;
-    applyLoop();
-  }
-  player.seek(time);
-}
-
-function goToStart() {
-  seekTo(loop && loopEnabled ? loop.start : 0);
-}
+const seekTo = (time: number) => player?.seek(time);
+const seekBy = (delta: number) => player && seekTo(player.position + delta);
+const goToStart = () => seekTo(0);
 
 playBtn.addEventListener("click", togglePlay);
 $("backBtn").addEventListener("click", () => seekBy(-5));
 $("fwdBtn").addEventListener("click", () => seekBy(5));
 $("startBtn").addEventListener("click", goToStart);
-
-// ---- loop -----------------------------------------------------------------------------
-async function applyLoop(persist = true) {
-  waveform.setLoop(loop, loopEnabled);
-  loopBtn.setAttribute("aria-pressed", String(loopEnabled));
-  loopBtn.disabled = !loop;
-  $<HTMLButtonElement>("clearLoopBtn").disabled = !loop;
-  renderTrainer();
-  if (persist) save();
-  const p = player;
-  if (!p) return;
-  await p.setLoop(loop && loopEnabled ? loop : null);
-  // Starting a loop from outside it would only reach it after a long wait: jump in.
-  if (loop && loopEnabled && (p.position < loop.start || p.position >= loop.end)) await p.seek(loop.start);
-}
-
-function setLoopPoint(which: "start" | "end") {
-  if (!player?.duration) return;
-  const now = player.position;
-  const other = which === "start" ? (loop?.end ?? player.duration) : (loop?.start ?? 0);
-  let start = which === "start" ? now : other;
-  let end = which === "end" ? now : other;
-  if (end - start < 0.1) {
-    // Point placed past the other one: restart the region from here.
-    start = which === "start" ? now : Math.max(0, now - 4);
-    end = which === "end" ? now : Math.min(player.duration, now + 4);
-  }
-  loop = { start, end };
-  loopEnabled = true;
-  loopsDone = 0;
-  applyLoop();
-}
-
-$("setABtn").addEventListener("click", () => setLoopPoint("start"));
-$("setBBtn").addEventListener("click", () => setLoopPoint("end"));
-loopBtn.addEventListener("click", () => {
-  if (!loop) return;
-  loopEnabled = !loopEnabled;
-  loopsDone = 0;
-  applyLoop();
-});
-$("clearLoopBtn").addEventListener("click", () => {
-  loop = null;
-  loopEnabled = false;
-  applyLoop();
-});
-
-// ---- speed trainer ---------------------------------------------------------------------
-function renderTrainer() {
-  const usable = !!(loop && loopEnabled && originalBpm);
-  trainerHint.hidden = usable;
-  for (const el of [trainerStep, trainerEvery, trainerMax]) el.disabled = !trainerOn.checked;
-}
-trainerOn.addEventListener("change", () => {
-  loopsDone = 0;
-  renderTrainer();
-});
-
-function runTrainer() {
-  if (!trainerOn.checked || !originalBpm || !loopEnabled) return;
-  loopsDone++;
-  const every = Math.max(1, Math.round(Number(trainerEvery.value) || 1));
-  if (loopsDone % every !== 0) return;
-  const step = Number(trainerStep.value) || 0;
-  const max = Number(trainerMax.value) || originalBpm;
-  const current = originalBpm * rate;
-  if (current >= max - 1e-6) return;
-  setTargetBpm(Math.min(max, current + step));
-}
 
 // ---- open / drag & drop ------------------------------------------------------------------
 $("openBtn").addEventListener("click", () => fileInput.click());
@@ -431,9 +328,6 @@ window.addEventListener("keydown", (e) => {
     ArrowRight: () => seekBy(5),
     ArrowUp: () => nudgeTarget(1),
     ArrowDown: () => nudgeTarget(-1),
-    a: () => setLoopPoint("start"),
-    b: () => setLoopPoint("end"),
-    l: () => loopBtn.click(),
     t: tap,
     Home: goToStart,
   };
@@ -446,13 +340,4 @@ window.addEventListener("keydown", (e) => {
 });
 
 // ---- init -------------------------------------------------------------------------------
-waveform = new Waveform($<HTMLCanvasElement>("wave"), {
-  onSeek: seekTo,
-  onLoopChange: (l) => {
-    loop = l;
-    loopEnabled = !!l;
-    loopsDone = 0;
-    applyLoop();
-  },
-});
-renderTrainer();
+waveform = new Waveform($<HTMLCanvasElement>("wave"), seekTo);
