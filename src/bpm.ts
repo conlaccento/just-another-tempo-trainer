@@ -191,7 +191,8 @@ function refineTempo(env: Float32Array, fps: number, around: number) {
       }
     }
   }
-  return { bpm: Math.round(bestBpm * 10) / 10, phase: bestPhase };
+  // Whole BPM: what musicians expect, and sub-BPM precision is not meaningful for practice.
+  return { bpm: Math.round(bestBpm), phase: bestPhase };
 }
 
 function smooth(x: Float32Array, kernel: number[]): Float32Array {

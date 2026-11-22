@@ -6,18 +6,18 @@ import { SR, drumTrack } from "./synth.ts";
 
 // In the common range the exact tempo is required. At the extremes half/double tempo is a
 // genuine ambiguity (the UI offers x2 / ÷2), but the value must still be precise.
-for (const bpm of [90, 100, 112, 120, 128, 133.5, 145]) {
+for (const bpm of [90, 100, 112, 120, 128, 133, 145]) {
   test(`detects ${bpm} BPM on a synthetic drum loop`, () => {
     const res = detectBpm(drumTrack(bpm, 40, Math.round(bpm * 10)), SR);
     assert.ok(res, "expected a result");
-    assert.ok(Math.abs(res.bpm - bpm) <= 0.3, `expected ~${bpm}, got ${res.bpm}`);
+    assert.equal(res.bpm, bpm);
   });
 }
 for (const bpm of [64, 72, 160, 174]) {
   test(`detects ${bpm} BPM up to an octave on a synthetic drum loop`, () => {
     const res = detectBpm(drumTrack(bpm, 40, Math.round(bpm * 10)), SR);
     assert.ok(res, "expected a result");
-    const ok = [bpm, bpm * 2, bpm / 2].some((c) => Math.abs(res.bpm - c) <= 0.3 * (c / bpm));
+    const ok = [bpm, bpm * 2, bpm / 2].some((c) => Math.abs(res.bpm - c) <= 0.5);
     assert.ok(ok, `expected ${bpm} or an octave of it, got ${res.bpm}`);
   });
 }
@@ -33,7 +33,7 @@ test("is not fooled by a 3:2 subdivision (triplet hi-hats)", () => {
     }
   }
   const res = detectBpm([l, r], SR);
-  assert.ok(res && Math.abs(res.bpm - 100) <= 0.3, `got ${res?.bpm}`);
+  assert.equal(res?.bpm, 100);
 });
 
 test("works with mono input and 48 kHz", () => {
@@ -45,7 +45,12 @@ test("works with mono input and 48 kHz", () => {
     out[i] = l[k] * (1 - t) + (l[k + 1] ?? 0) * t;
   }
   const res = detectBpm([out], 48000);
-  assert.ok(res && Math.abs(res.bpm - 110) <= 0.3, `got ${res?.bpm}`);
+  assert.equal(res?.bpm, 110);
+});
+
+test("detected BPM is always a whole number", () => {
+  const res = detectBpm(drumTrack(97.4, 30), SR);
+  assert.equal(res?.bpm, 97);
 });
 
 test("returns null for too-short or silent audio", () => {

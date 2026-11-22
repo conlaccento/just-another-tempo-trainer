@@ -18,7 +18,7 @@ export class TapTempo {
     if (this.taps.length > this.maxTaps) this.taps.shift();
     if (this.taps.length < 2) return null;
     const span = this.taps[this.taps.length - 1] - this.taps[0];
-    return Math.round((60000 * (this.taps.length - 1) / span) * 10) / 10;
+    return Math.round((60000 * (this.taps.length - 1)) / span);
   }
 
   get count() {

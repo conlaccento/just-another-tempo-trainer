@@ -53,7 +53,7 @@ If SmartScreen shows "Windows protected your PC", click **More info → Run anyw
 - **BPM detection** ([`src/bpm.ts`](src/bpm.ts)) runs in a Web Worker:
   1. It computes an onset-strength envelope: the spectral flux of log energy in ⅓-octave bands.
   2. It picks the tempo from the autocorrelation of that envelope, with a mild preference for the common 70–160 BPM range.
-  3. It refines the value to 0.1 BPM by fitting a beat grid over the whole song.
+  3. It refines the value by fitting a beat grid over the whole song, then rounds it to a whole BPM.
 
   Detection works best on music with a steady beat. Rubato or live recordings may need a manual correction (Tap).
 - **Time stretching** is done by Signalsmith Stretch (MIT licence), compiled to WebAssembly and running in an AudioWorklet. This keeps audio smooth when you change the tempo on the fly.

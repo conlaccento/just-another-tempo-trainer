@@ -1,3 +1,6 @@
+import "@fontsource/jost/latin-400.css";
+import "@fontsource/jost/latin-500.css";
+import "@fontsource/jost/latin-700.css";
 import "./style.css";
 import { lang, t, type Strings } from "./i18n.ts";
 import { Player, type Loop } from "./player.ts";
@@ -86,7 +89,6 @@ const fmt = (s: number, tenths = true) => {
   const sec = s - m * 60;
   return `${m}:${(tenths ? sec.toFixed(1) : Math.floor(sec).toString()).padStart(tenths ? 4 : 2, "0")}`;
 };
-const round1 = (n: number) => Math.round(n * 10) / 10;
 const clampRate = (r: number) => Math.max(MIN_RATE, Math.min(MAX_RATE, r));
 
 function getPlayer() {
@@ -127,7 +129,7 @@ async function openFile(file: File) {
     dropStatus.textContent = "";
 
     waveform.setBuffer(buffer);
-    originalBpm = saved.originalBpm ?? null;
+    originalBpm = saved.originalBpm ? Math.round(saved.originalBpm) : null;
     rate = clampRate(saved.rate ?? 1);
     semitones = saved.semitones ?? 0;
     loop = saved.loop && saved.loop.end <= buffer.duration ? saved.loop : null;
@@ -182,23 +184,25 @@ function setBpmStatus(text: string, kind: "" | "busy" | "warn" = "") {
 // ---- tempo ----------------------------------------------------------------------------
 function renderTempo() {
   const hasBpm = originalBpm !== null;
-  if (document.activeElement !== origInput) origInput.value = hasBpm ? String(round1(originalBpm!)) : "";
+  if (document.activeElement !== origInput) origInput.value = hasBpm ? String(originalBpm) : "";
   origInput.placeholder = "—";
-  if (document.activeElement !== targetInput) targetInput.value = hasBpm ? String(round1(originalBpm! * rate)) : "";
+  if (document.activeElement !== targetInput) targetInput.value = hasBpm ? String(Math.round(originalBpm! * rate)) : "";
   targetInput.disabled = !hasBpm;
   targetInput.placeholder = "—";
   for (const id of ["targetDown", "targetUp", "halfBtn", "doubleBtn"]) $<HTMLButtonElement>(id).disabled = !hasBpm;
   speedRange.value = String(Math.round(rate * 100));
   speedOut.textContent = `${Math.round(rate * 100)}%`;
   document.querySelectorAll<HTMLButtonElement>("#presets button").forEach((b) => {
-    b.setAttribute("aria-pressed", String(Math.abs(Number(b.dataset.rate) - rate) < 0.004));
+    const pressed = hasBpm ? Math.round(originalBpm! * Number(b.dataset.rate)) === Math.round(originalBpm! * rate) : Math.abs(Number(b.dataset.rate) - rate) < 0.004;
+    b.setAttribute("aria-pressed", String(pressed));
   });
   if (hasBpm && !trainerMax.value) trainerMax.value = String(Math.round(originalBpm!));
   renderTrainer();
 }
 
 async function setRate(r: number) {
-  rate = clampRate(r);
+  // With a known BPM, snap to a whole practice BPM (e.g. 75% of 97 → 73 BPM).
+  rate = clampRate(originalBpm ? Math.max(1, Math.round(originalBpm * r)) / originalBpm : r);
   renderTempo();
   save();
   await player?.setRate(rate);
@@ -210,12 +214,12 @@ function setTargetBpm(bpm: number) {
 }
 
 function setOriginalBpm(bpm: number | null) {
-  if (bpm !== null && (!Number.isFinite(bpm) || bpm < 20 || bpm > 400)) return;
+  if (bpm !== null && (!Number.isFinite(bpm) || bpm < 20 || bpm > 400)) return renderTempo();
   // Keep the practice BPM stable where possible when the reference changes.
   const target = originalBpm ? originalBpm * rate : null;
-  originalBpm = bpm === null ? null : round1(bpm);
+  originalBpm = bpm === null ? null : Math.round(bpm);
   trainerMax.value = originalBpm ? String(Math.round(originalBpm)) : "";
-  if (target && originalBpm) rate = clampRate(target / originalBpm);
+  if (target && originalBpm) rate = clampRate(Math.round(target) / originalBpm);
   player?.setRate(rate);
   setBpmStatus("");
   renderTempo();

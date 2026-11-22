@@ -23,6 +23,7 @@ export class Waveform {
     this.ctx = canvas.getContext("2d")!;
     new ResizeObserver(() => this.draw()).observe(canvas);
     matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => this.draw());
+    document.fonts?.ready.then(() => this.draw());
     canvas.addEventListener("pointerdown", (e) => this.down(e));
     canvas.addEventListener("pointermove", (e) => this.move(e));
     canvas.addEventListener("pointerup", (e) => this.up(e));
@@ -132,6 +133,11 @@ export class Waveform {
     const mid = h / 2;
     const playedX = this.xOf(this.position);
     const buckets = this.peaks.length / 2;
+    // Loop region goes behind the waveform so it does not tint the bars.
+    if (this.loop) {
+      g.fillStyle = color(this.loopEnabled ? "--loop-fill" : "--loop-fill-off");
+      g.fillRect(this.xOf(this.loop.start), 0, this.xOf(this.loop.end) - this.xOf(this.loop.start), h);
+    }
     for (let x = 0; x < w; x++) {
       const b0 = Math.floor((x / w) * buckets), b1 = Math.max(b0 + 1, Math.floor(((x + 1) / w) * buckets));
       let lo = 0, hi = 0;
@@ -145,17 +151,15 @@ export class Waveform {
 
     if (this.loop) {
       const x0 = this.xOf(this.loop.start), x1 = this.xOf(this.loop.end);
-      g.fillStyle = color(this.loopEnabled ? "--loop-fill" : "--loop-fill-off");
-      g.fillRect(x0, 0, x1 - x0, h);
       g.fillStyle = color(this.loopEnabled ? "--loop-edge" : "--loop-edge-off");
-      g.fillRect(x0 - 1, 0, 2, h);
-      g.fillRect(x1 - 1, 0, 2, h);
-      g.font = "600 11px system-ui, sans-serif";
-      g.fillText("A", x0 + 4, 13);
-      g.fillText("B", x1 - 12, 13);
+      g.fillRect(x0 - 1.5, 0, 3, h);
+      g.fillRect(x1 - 1.5, 0, 3, h);
+      g.font = "700 13px Jost, system-ui, sans-serif";
+      g.fillText("A", x0 + 5, 14);
+      g.fillText("B", x1 - 14, 14);
     }
 
     g.fillStyle = color("--playhead");
-    g.fillRect(playedX - 1, 0, 2, h);
+    g.fillRect(playedX - 1.5, 0, 3, h);
   }
 }

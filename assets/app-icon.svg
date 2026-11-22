@@ -1,6 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-  <rect x="64" y="64" width="896" height="896" rx="200" fill="#d1472f"/>
-  <path d="M332 800h360L590 224H434z" fill="none" stroke="#fff" stroke-width="56" stroke-linejoin="round"/>
-  <path d="M512 620 690 330" stroke="#fff" stroke-width="56" stroke-linecap="round"/>
-  <circle cx="512" cy="620" r="58" fill="#fff"/>
+  <!-- Bauhaus metronome: yellow triangle body, black pendulum, blue weight, red base -->
+  <rect x="64" y="64" width="896" height="896" fill="#f4efe4"/>
+  <polygon points="196,792 512,168 828,792" fill="#f2c12e"/>
+  <rect x="196" y="792" width="632" height="104" fill="#c8221b"/>
+  <path d="M512 720 712 300" stroke="#141414" stroke-width="44" stroke-linecap="square"/>
+  <circle cx="650" cy="430" r="74" fill="#1d3c8f"/>
 </svg>
