@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tempo Trainer</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M9 28h14L19 4h-6z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M16 21 23 9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="16" cy="21" r="2.2" fill="currentColor"/></svg>
+        <span>Tempo Trainer</span>
+      </div>
+      <div id="fileName" class="file-name"></div>
+      <button id="openBtn" class="btn" type="button" data-i18n="open"></button>
+      <input id="fileInput" type="file" accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus" hidden />
+    </header>
+
+    <main>
+      <section id="drop" class="drop">
+        <div class="drop-inner">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M18 36V12l20-4v24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><circle cx="13" cy="36" r="5" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="33" cy="32" r="5" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
+          <p class="drop-title" data-i18n="dropTitle"></p>
+          <p><span data-i18n="dropOr"></span> <button id="chooseBtn" class="link" type="button" data-i18n="choose"></button></p>
+          <p class="muted small" data-i18n="dropFormats"></p>
+          <p id="dropStatus" class="drop-status" role="status"></p>
+        </div>
+      </section>
+
+      <section id="player" class="player" hidden>
+        <div class="wave-wrap">
+          <canvas id="wave" class="wave"></canvas>
+          <div class="wave-meta">
+            <span><span id="cur" class="mono">0:00.0</span> / <span id="dur" class="mono">0:00</span></span>
+            <span class="muted small" data-i18n="loopHint"></span>
+          </div>
+        </div>
+
+        <div class="transport">
+          <div class="group">
+            <button id="startBtn" class="icon-btn" type="button" data-i18n-title="toStart"><svg viewBox="0 0 24 24"><path d="M6 5v14M19 5 9 12l10 7z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>
+            <button id="backBtn" class="icon-btn" type="button" data-i18n-title="back"><svg viewBox="0 0 24 24"><path d="M11 6 4 12l7 6zM20 6l-7 6 7 6z" fill="currentColor"/></svg></button>
+            <button id="playBtn" class="play-btn" type="button" data-i18n-title="play">
+              <svg class="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z" fill="currentColor"/></svg>
+              <svg class="i-pause" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z" fill="currentColor"/></svg>
+            </button>
+            <button id="fwdBtn" class="icon-btn" type="button" data-i18n-title="forward"><svg viewBox="0 0 24 24"><path d="m13 6 7 6-7 6zM4 6l7 6-7 6z" fill="currentColor"/></svg></button>
+          </div>
+          <div class="group loop-group" role="group" data-i18n-aria="loop">
+            <span class="label" data-i18n="loop"></span>
+            <button id="setABtn" class="btn small" type="button" data-i18n="setA"></button>
+            <button id="setBBtn" class="btn small" type="button" data-i18n="setB"></button>
+            <button id="loopBtn" class="btn small toggle" type="button" aria-pressed="false" data-i18n="loopOn"></button>
+            <button id="clearLoopBtn" class="btn small ghost" type="button" data-i18n="clearLoop"></button>
+          </div>
+        </div>
+
+        <div class="panels">
+          <div class="card tempo-card">
+            <div class="bpm-pair">
+              <div class="bpm-box">
+                <label for="origInput" class="label" data-i18n="original"></label>
+                <input id="origInput" class="bpm-input" type="number" min="20" max="400" step="0.1" inputmode="decimal" data-i18n-title="editHint" />
+                <div class="bpm-tools">
+                  <button id="halfBtn" class="btn small" type="button" data-i18n-title="half">÷2</button>
+                  <button id="doubleBtn" class="btn small" type="button" data-i18n-title="double">×2</button>
+                  <button id="tapBtn" class="btn small" type="button" data-i18n="tap" data-i18n-title="tapHint"></button>
+                </div>
+                <p id="bpmStatus" class="bpm-status small" role="status"></p>
+              </div>
+              <div class="arrow" aria-hidden="true">→</div>
+              <div class="bpm-box main">
+                <label for="targetInput" class="label" data-i18n="target"></label>
+                <div class="stepper">
+                  <button id="targetDown" class="icon-btn" type="button" aria-label="−1">−</button>
+                  <input id="targetInput" class="bpm-input big" type="number" min="5" max="600" step="1" inputmode="decimal" />
+                  <button id="targetUp" class="icon-btn" type="button" aria-label="+1">+</button>
+                </div>
+              </div>
+            </div>
+            <div class="speed-row">
+              <label for="speedRange" class="label" data-i18n="speed"></label>
+              <input id="speedRange" type="range" min="25" max="150" step="1" value="100" />
+              <output id="speedOut" class="mono" for="speedRange">100%</output>
+            </div>
+            <div id="presets" class="presets"></div>
+          </div>
+
+          <div class="card">
+            <label class="check">
+              <input id="trainerOn" type="checkbox" />
+              <span class="label" data-i18n="trainer"></span>
+            </label>
+            <p class="trainer-line">
+              <span data-i18n="trainerStep"></span>
+              <input id="trainerStep" class="mini" type="number" min="0.5" max="50" step="0.5" value="2" />
+              <span data-i18n="trainerEvery"></span>
+              <input id="trainerEvery" class="mini" type="number" min="1" max="50" step="1" value="2" />
+              <span data-i18n="trainerLoops"></span>
+              <input id="trainerMax" class="mini" type="number" min="5" max="600" step="1" />
+              BPM
+            </p>
+            <p id="trainerHint" class="muted small" data-i18n="trainerNeedsLoop"></p>
+          </div>
+
+          <div class="card">
+            <div class="row">
+              <span class="label" data-i18n="transpose"></span>
+              <div class="stepper">
+                <button id="pitchDown" class="icon-btn" type="button" aria-label="−1">−</button>
+                <output id="pitchOut" class="mono pitch-out">0</output>
+                <button id="pitchUp" class="icon-btn" type="button" aria-label="+1">+</button>
+              </div>
+              <span class="muted small" data-i18n="semitones"></span>
+            </div>
+            <div class="row">
+              <label for="volRange" class="label" data-i18n="volume"></label>
+              <input id="volRange" type="range" min="0" max="1.5" step="0.01" value="1" />
+            </div>
+          </div>
+        </div>
+
+        <details class="shortcuts">
+          <summary data-i18n="shortcuts"></summary>
+          <dl>
+            <dt><kbd>Space</kbd></dt><dd data-i18n="scSpace"></dd>
+            <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd data-i18n="scArrows"></dd>
+            <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd data-i18n="scUpDown"></dd>
+            <dt><kbd>A</kbd> <kbd>B</kbd></dt><dd data-i18n="scAB"></dd>
+            <dt><kbd>L</kbd></dt><dd data-i18n="scL"></dd>
+            <dt><kbd>T</kbd></dt><dd data-i18n="scT"></dd>
+            <dt><kbd>Home</kbd></dt><dd data-i18n="scHome"></dd>
+          </dl>
+        </details>
+      </section>
+    </main>
+    <div id="dropOverlay" class="drop-overlay" hidden><span data-i18n="dropTitle"></span></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
