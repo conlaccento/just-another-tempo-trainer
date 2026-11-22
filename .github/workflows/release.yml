@@ -55,3 +55,5 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+          # Version-free names, so the README can link to releases/latest/download/<file>.
+          assetNamePattern: TempoTrainer_[platform]_[arch][setup][ext]

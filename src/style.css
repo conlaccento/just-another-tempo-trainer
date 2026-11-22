@@ -459,6 +459,12 @@ main {
 .panels > * {
   min-width: 0;
 }
+/* Tempo on the left; Sound and Shortcuts stacked on the right. */
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
 .panel {
   display: flex;
   flex-direction: column;
@@ -581,22 +587,12 @@ main {
   text-align: center;
 }
 
-.shortcuts {
-  padding-top: 16px;
-  border-top: 2px solid var(--border);
-}
-.shortcuts summary {
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
 .shortcuts dl {
   display: grid;
   grid-template-columns: max-content 1fr;
-  gap: 8px 16px;
-  margin: 12px 0 0;
+  align-items: center;
+  gap: 10px 16px;
+  margin: 0;
 }
 .shortcuts dt,
 .shortcuts dd {
