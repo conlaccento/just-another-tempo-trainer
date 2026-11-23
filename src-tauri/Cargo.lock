@@ -1760,6 +1760,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "just-another-tempo-trainer"
+version = "0.1.0"
+dependencies = [
+ "tauri",
+ "tauri-build",
+]
+
+[[package]]
 name = "keyboard-types"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3487,14 +3495,6 @@ dependencies = [
  "dunce",
  "embed-resource",
  "toml 1.2.2+spec-1.1.0",
-]
-
-[[package]]
-name = "tempo-trainer"
-version = "0.1.0"
-dependencies = [
- "tauri",
- "tauri-build",
 ]
 
 [[package]]

@@ -48,7 +48,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: Tempo Trainer ${{ github.ref_name }}
+          releaseName: Just another Tempo Trainer ${{ github.ref_name }}
           releaseBody: |
             Downloads: `.dmg` for macOS (`aarch64` = Apple Silicon, `x64` = Intel), `.exe` or `.msi` for Windows, `.AppImage`, `.deb` or `.rpm` for Linux.
             The app is not signed: see the README for how to open it the first time.
@@ -56,4 +56,4 @@ jobs:
           prerelease: false
           args: ${{ matrix.args }}
           # Version-free names, so the README can link to releases/latest/download/<file>.
-          assetNamePattern: TempoTrainer_[platform]_[arch][setup][ext]
+          assetNamePattern: JustAnotherTempoTrainer_[platform]_[arch][setup][ext]

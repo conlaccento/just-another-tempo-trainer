@@ -1,8 +1,8 @@
-# Tempo Trainer
+# Just another Tempo Trainer
 
 Slow a song down to practise it, without changing its pitch.
 
-Open an MP3 (or WAV, FLAC, M4A, OGG). Tempo Trainer detects its BPM, and you choose the tempo you want to practise at. It plays the song at that tempo straight away, in the original key.
+Open an MP3 (or WAV, FLAC, M4A, OGG). Just another Tempo Trainer detects its BPM, and you choose the tempo you want to practise at. It plays the song at that tempo straight away, in the original key.
 
 > 🇮🇹 **In breve:** apri un brano, l'app ne rileva i BPM, scegli i BPM a cui vuoi esercitarti e lo ascolti rallentato senza che cambi la tonalità. L'interfaccia è in italiano se il sistema è in italiano.
 
@@ -34,11 +34,11 @@ The app is free and open source, so it is **not signed** with a paid Apple or Mi
 
 **macOS** (`.dmg`; pick `aarch64` for Apple Silicon M1–M4, `x64` for Intel Macs)
 
-1. Open the `.dmg` and drag **Tempo Trainer** into **Applications**.
+1. Open the `.dmg` and drag **Just another Tempo Trainer** into **Applications**.
 2. Open it once. macOS says it cannot verify the developer: click **Done**.
 3. Go to **System Settings → Privacy & Security**, scroll down and click **Open Anyway**.
 
-Alternatively, in Terminal: `xattr -cr "/Applications/Tempo Trainer.app"`
+Alternatively, in Terminal: `xattr -cr "/Applications/Just another Tempo Trainer.app"`
 
 **Windows** (`.exe` installer, or `.msi`)
 

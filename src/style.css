@@ -156,6 +156,14 @@ output {
   letter-spacing: 0.01em;
   text-transform: uppercase;
 }
+.app-title .title-pre {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--muted);
+  font-size: 0.42em;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+}
 .file-name {
   margin: 4px 0 0;
   overflow: hidden;

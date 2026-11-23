@@ -1,6 +1,6 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "Tempo Trainer",
+  "productName": "Just another Tempo Trainer",
   "version": "0.1.0",
   "identifier": "io.github.tempotrainer",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Tempo Trainer",
+        "title": "Just another Tempo Trainer",
         "width": 1100,
         "height": 820,
         "minWidth": 420,

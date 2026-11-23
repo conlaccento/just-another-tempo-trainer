@@ -110,7 +110,7 @@ async function openFile(file: File) {
     fileKey = `tt:${file.name}:${file.size}`;
     const saved = loadSaved(fileKey);
     fileName.textContent = file.name;
-    document.title = `${file.name} — Tempo Trainer`;
+    document.title = `${file.name} — Just another Tempo Trainer`;
     dur.textContent = fmt(buffer.duration, false);
     dropSection.hidden = true;
     playerSection.hidden = false;

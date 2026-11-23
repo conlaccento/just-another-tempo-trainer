@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    tempo_trainer_lib::run();
+    just_another_tempo_trainer_lib::run();
 }
