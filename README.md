@@ -28,11 +28,20 @@ Open an MP3 (or WAV, FLAC, M4A, OGG). Just another Tempo Trainer detects its BPM
 
 ## Download and install
 
-Download the latest installer from the [Releases](../../releases) page.
+Download the latest version for your system:
+
+| System | Download |
+| --- | --- |
+| macOS, Apple Silicon (M1–M4) | [.dmg](https://github.com/conlaccento/just-another-tempo-trainer/releases/latest/download/JustAnotherTempoTrainer_darwin_aarch64.dmg) |
+| macOS, Intel | [.dmg](https://github.com/conlaccento/just-another-tempo-trainer/releases/latest/download/JustAnotherTempoTrainer_darwin_x64.dmg) |
+| Windows 10 / 11 | [installer .exe](https://github.com/conlaccento/just-another-tempo-trainer/releases/latest/download/JustAnotherTempoTrainer_windows_x64-setup.exe) · [.msi](https://github.com/conlaccento/just-another-tempo-trainer/releases/latest/download/JustAnotherTempoTrainer_windows_x64.msi) |
+| Linux (x86-64) | [.AppImage](https://github.com/conlaccento/just-another-tempo-trainer/releases/latest/download/JustAnotherTempoTrainer_linux_amd64.AppImage) · [.deb](https://github.com/conlaccento/just-another-tempo-trainer/releases/latest/download/JustAnotherTempoTrainer_linux_amd64.deb) · [.rpm](https://github.com/conlaccento/just-another-tempo-trainer/releases/latest/download/JustAnotherTempoTrainer_linux_x86_64.rpm) |
+
+Older versions and release notes are on the [Releases](https://github.com/conlaccento/just-another-tempo-trainer/releases) page.
 
 The app is free and open source, so it is **not signed** with a paid Apple or Microsoft certificate. The system warns you the first time you open it:
 
-**macOS** (`.dmg`; pick `aarch64` for Apple Silicon M1–M4, `x64` for Intel Macs)
+**macOS**
 
 1. Open the `.dmg` and drag **Just another Tempo Trainer** into **Applications**.
 2. Open it once. macOS says it cannot verify the developer: click **Done**.
@@ -40,13 +49,13 @@ The app is free and open source, so it is **not signed** with a paid Apple or Mi
 
 Alternatively, in Terminal: `xattr -cr "/Applications/Just another Tempo Trainer.app"`
 
-**Windows** (`.exe` installer, or `.msi`)
+**Windows**
 
 If SmartScreen shows "Windows protected your PC", click **More info → Run anyway**.
 
-**Linux** (`.AppImage`, `.deb` or `.rpm`)
+**Linux**
 
-Make the AppImage executable (`chmod +x Tempo*.AppImage`) and run it, or install the `.deb` / `.rpm` package. The app needs WebKitGTK 4.1, plus the GStreamer plugins to decode MP3 (`gstreamer1.0-plugins-good` on Debian/Ubuntu). The Linux build is less tested than the macOS and Windows ones.
+Make the AppImage executable (`chmod +x JustAnotherTempoTrainer_*.AppImage`) and run it, or install the `.deb` / `.rpm` package. The app needs WebKitGTK 4.1, plus the GStreamer plugins to decode MP3 (`gstreamer1.0-plugins-good` on Debian/Ubuntu). The Linux build is less tested than the macOS and Windows ones.
 
 ## How it works
 
