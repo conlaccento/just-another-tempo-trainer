@@ -19,3 +19,6 @@ Tauri v2 desktop app (vanilla TS + Vite, no framework): detects a song's BPM and
 - Release asset names are version-free (`assetNamePattern` in release.yml) because the README links to `releases/latest/download/JustAnotherTempoTrainer_<os>_<arch>.<ext>`; keep them in sync
 - Style is Bauhaus, shared with the sibling `../dettato-ritmico-app`: Jost, paper bg, red/yellow/blue tokens in `src/style.css`, square corners
 - UI texts live in `src/i18n.ts` (English + Italian); add both
+- When features change, also update `bundle.longDescription` in `src-tauri/tauri.conf.json` (shown in Linux package managers) and the README
+- The e2e "plays at normal speed" check can fail once on Chromium from audio start-up latency: rerun before debugging
+- Linux `.deb` package name is `just-another-tempo-trainer`; app data lives in `~/.local/share/io.github.justanothertempotrainer`
