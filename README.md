@@ -78,7 +78,7 @@ npm run tauri build    # build the installer for the current OS
 Update `version` in `package.json` and `src-tauri/tauri.conf.json`, then push a tag:
 
 ```sh
-git tag v0.2.0 && git push origin v0.2.0
+git tag v1.1.0 && git push origin v1.1.0
 ```
 
 GitHub Actions builds the macOS (Apple Silicon and Intel), Windows and Linux installers and attaches them to a **draft** release. Review the draft and publish it.

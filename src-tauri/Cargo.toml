@@ -1,6 +1,6 @@
 [package]
 name = "just-another-tempo-trainer"
-version = "0.1.0"
+version = "1.0.0"
 description = "Slow down songs to practice, without changing pitch"
 authors = ["Just another Tempo Trainer contributors"]
 license = "MIT"
