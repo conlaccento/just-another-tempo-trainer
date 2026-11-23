@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Just another Tempo Trainer",
   "version": "0.1.0",
-  "identifier": "io.github.tempotrainer",
+  "identifier": "io.github.justanothertempotrainer",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
