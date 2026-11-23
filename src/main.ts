@@ -7,6 +7,8 @@ import { Player } from "./player.ts";
 import { Waveform } from "./waveform.ts";
 import { TapTempo } from "./tap.ts";
 import type { BpmResult } from "./bpm.ts";
+import { invoke, isTauri } from "@tauri-apps/api/core";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -293,24 +295,49 @@ fileInput.addEventListener("change", () => {
 });
 
 const overlay = $("dropOverlay");
-let dragDepth = 0;
-window.addEventListener("dragenter", (e) => {
-  if (!e.dataTransfer?.types.includes("Files")) return;
-  dragDepth++;
-  overlay.hidden = false;
-});
-window.addEventListener("dragleave", () => {
-  dragDepth = Math.max(0, dragDepth - 1);
-  if (!dragDepth) overlay.hidden = true;
-});
-window.addEventListener("dragover", (e) => e.preventDefault());
-window.addEventListener("drop", (e) => {
-  e.preventDefault();
-  dragDepth = 0;
-  overlay.hidden = true;
-  const f = e.dataTransfer?.files[0];
-  if (f) openFile(f);
-});
+
+if (isTauri()) {
+  // Desktop app: use Tauri's native drag-and-drop, which works the same on every OS
+  // (HTML5 drops from the Linux file manager often carry no readable File).
+  getCurrentWebview().onDragDropEvent(async (e) => {
+    const ev = e.payload;
+    if (ev.type === "over") return;
+    overlay.hidden = ev.type !== "enter";
+    if (ev.type !== "drop" || !ev.paths.length) return;
+    const path = ev.paths[0];
+    const name = path.split(/[\\/]/).pop() || path;
+    try {
+      const data = await invoke<ArrayBuffer>("read_audio_file", { path });
+      openFile(new File([data], name));
+    } catch (err) {
+      console.error(err);
+      dropStatus.textContent = t.error;
+      dropStatus.classList.add("error");
+      dropSection.hidden = false;
+      playerSection.hidden = true;
+    }
+  });
+} else {
+  // Browser (development): standard HTML5 drag-and-drop.
+  let dragDepth = 0;
+  window.addEventListener("dragenter", (e) => {
+    if (!e.dataTransfer?.types.includes("Files")) return;
+    dragDepth++;
+    overlay.hidden = false;
+  });
+  window.addEventListener("dragleave", () => {
+    dragDepth = Math.max(0, dragDepth - 1);
+    if (!dragDepth) overlay.hidden = true;
+  });
+  window.addEventListener("dragover", (e) => e.preventDefault());
+  window.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dragDepth = 0;
+    overlay.hidden = true;
+    const f = e.dataTransfer?.files[0];
+    if (f) openFile(f);
+  });
+}
 
 // ---- keyboard ---------------------------------------------------------------------------
 window.addEventListener("keydown", (e) => {

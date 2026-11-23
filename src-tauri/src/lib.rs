@@ -1,7 +1,46 @@
-// The whole app runs in the webview (Web Audio + WASM): the native side only hosts the window.
+use tauri::ipc::Response;
+
+/// Audio formats the app can open; anything else is refused.
+const AUDIO_EXTENSIONS: &[&str] = &["mp3", "wav", "flac", "m4a", "aac", "ogg", "oga", "opus", "aif", "aiff"];
+
+/// Reads a file dropped on the window. Native drag-and-drop only yields paths, and the
+/// webview cannot read a path by itself (WebKitGTK on Linux gives no usable File object).
+#[tauri::command]
+fn read_audio_file(path: String) -> Result<Response, String> {
+    let ext = std::path::Path::new(&path)
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.to_ascii_lowercase())
+        .unwrap_or_default();
+    if !AUDIO_EXTENSIONS.contains(&ext.as_str()) {
+        return Err(format!("unsupported file type: .{ext}"));
+    }
+    std::fs::read(&path).map(Response::new).map_err(|e| e.to_string())
+}
+
+// Playback and analysis run in the webview (Web Audio + WASM); the native side hosts the
+// window and reads dropped files.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![read_audio_file])
         .run(tauri::generate_context!())
         .expect("error while running Just another Tempo Trainer");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::read_audio_file;
+
+    #[test]
+    fn reads_audio_and_refuses_other_files() {
+        let dir = std::env::temp_dir();
+        let audio = dir.join("jatt-test.MP3");
+        std::fs::write(&audio, b"ID3data").unwrap();
+        assert!(read_audio_file(audio.to_string_lossy().into()).is_ok());
+        let text = dir.join("jatt-test.txt");
+        std::fs::write(&text, b"secret").unwrap();
+        assert!(read_audio_file(text.to_string_lossy().into()).is_err());
+        assert!(read_audio_file(dir.join("missing.mp3").to_string_lossy().into()).is_err());
+    }
 }

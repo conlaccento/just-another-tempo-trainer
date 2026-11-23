@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Just another Tempo Trainer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "identifier": "io.github.justanothertempotrainer",
   "build": {
     "frontendDist": "../dist",
@@ -17,8 +17,7 @@
         "height": 820,
         "minWidth": 420,
         "minHeight": 560,
-        "resizable": true,
-        "dragDropEnabled": false
+        "resizable": true
       }
     ],
     "security": {
