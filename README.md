@@ -15,7 +15,8 @@ Open an MP3 (or WAV, FLAC, M4A, OGG). Just another Tempo Trainer detects its BPM
 - **Zoom** into the waveform to place A and B precisely: pinch on the trackpad, Ctrl/⌘ + scroll, the `+` / `−` buttons, or **A–B** to zoom to the loop. While zoomed in, a scrollbar appears and the view follows playback.
 - **Transpose** ±12 semitones, for example to match a tuned-down guitar.
 - **Per-song memory**: the app remembers the BPM, practice tempo, loop and transposition for each file.
-- Small (~3 MB) and works offline. No account, no tracking.
+- **Updates**: the app checks for a new version at start-up (and with **Check for updates** at the bottom of the window), then downloads, installs and restarts on request. Updates are signed and verified.
+- Small (~3 MB) and works offline. No account, no tracking. The only network request is the update check.
 
 ### Keyboard shortcuts
 
@@ -95,7 +96,9 @@ Update `version` in `package.json` and `src-tauri/tauri.conf.json`, then push a 
 git tag v1.1.0 && git push origin v1.1.0
 ```
 
-GitHub Actions builds the macOS (Apple Silicon and Intel), Windows and Linux installers and attaches them to a **draft** release. Review the draft and publish it.
+GitHub Actions builds the macOS (Apple Silicon and Intel), Windows and Linux installers and attaches them to a **draft** release. Review the draft and publish it: the apps already installed see the update only once the release is published.
+
+Updates are signed with a private key stored in the repository secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`; the matching public key is in `src-tauri/tauri.conf.json`. Keep a backup of the private key: without it, installed apps can no longer update themselves.
 
 ### Project layout
 
@@ -107,6 +110,7 @@ src/
   bpm.worker.ts    runs bpm.ts off the UI thread
   waveform.ts      zoomable waveform, playhead, A–B loop selection
   tap.ts           tap tempo
+  updates.ts       in-app update check and install
   i18n.ts          English / Italian texts
 src-tauri/         desktop shell (Tauri v2)
 tests/             unit tests and browser e2e tests

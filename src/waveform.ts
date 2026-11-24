@@ -16,8 +16,6 @@ const EDGE_PX = 8;
 const OVERVIEW_BUCKETS = 4000;
 /** Narrowest visible range, in seconds. */
 const MIN_SPAN = 0.5;
-/** After the user pans or zooms, don't auto-follow the playhead for this long (ms). */
-const FOLLOW_PAUSE_MS = 2500;
 
 export class Waveform {
   private canvas: HTMLCanvasElement;
@@ -33,7 +31,6 @@ export class Waveform {
   private drag: { mode: "new" | "start" | "end"; x0: number; t0: number; moved: boolean } | null = null;
   private viewStart = 0;
   private viewSpan = 0;
-  private followPausedUntil = 0;
   /** Per-pixel [min, max] for the current view and width, rebuilt only when they change. */
   private columns: { key: string; data: Float32Array } | null = null;
   private pinchSpan = 0;
@@ -85,12 +82,15 @@ export class Waveform {
   }
 
   setPosition(t: number) {
+    // When zoomed in, turn the page as the playhead leaves the window, but only if it was in
+    // view: if the user is looking at another part of the song, leave the view alone.
+    if (this.zoomed && this.inView(this.position) && !this.inView(t)) this.setView(t - this.viewSpan * 0.05, this.viewSpan);
     this.position = t;
-    // When zoomed in, keep the playhead in view: turn the page when it leaves the window.
-    if (this.zoomed && performance.now() > this.followPausedUntil && (t < this.viewStart || t > this.viewStart + this.viewSpan)) {
-      this.setView(t - this.viewSpan * 0.05, this.viewSpan);
-    }
     this.draw();
+  }
+
+  private inView(t: number) {
+    return t >= this.viewStart && t <= this.viewStart + this.viewSpan;
   }
 
   setLoop(loop: Loop | null, enabled: boolean) {
@@ -112,8 +112,7 @@ export class Waveform {
   /** Zoom in (factor > 1) or out (factor < 1), keeping `anchor` (default: playhead or view centre) in place. */
   zoomBy(factor: number, anchor?: number) {
     if (!this.duration) return;
-    const inView = this.position >= this.viewStart && this.position <= this.viewStart + this.viewSpan;
-    this.zoomAround(anchor ?? (inView ? this.position : this.viewStart + this.viewSpan / 2), this.viewSpan / factor);
+    this.zoomAround(anchor ?? (this.inView(this.position) ? this.position : this.viewStart + this.viewSpan / 2), this.viewSpan / factor);
   }
 
   /** Show the whole song. */
@@ -152,10 +151,6 @@ export class Waveform {
     this.events.onViewChange?.(this.viewStart, this.viewSpan);
   }
 
-  private pauseFollow() {
-    this.followPausedUntil = performance.now() + FOLLOW_PAUSE_MS;
-  }
-
   private wheel(e: WheelEvent) {
     if (!this.duration) return;
     const width = this.canvas.getBoundingClientRect().width || 1;
@@ -164,7 +159,6 @@ export class Waveform {
     if (e.ctrlKey || e.metaKey) {
       // Ctrl + wheel, ⌘ + wheel, or a trackpad pinch in Chromium (sent as Ctrl + wheel).
       e.preventDefault();
-      this.pauseFollow();
       this.zoomAround(this.timeAt(e.clientX), this.viewSpan * Math.exp((e.deltaY * unit) / 200));
       return;
     }
@@ -172,7 +166,6 @@ export class Waveform {
     // Plain vertical scrolling keeps scrolling the page.
     if (!this.zoomed || Math.abs(dx) < Math.abs(e.shiftKey ? 0 : e.deltaY)) return;
     e.preventDefault();
-    this.pauseFollow();
     this.setView(this.viewStart + ((dx * unit) / width) * this.viewSpan, this.viewSpan);
   }
 
@@ -209,7 +202,6 @@ export class Waveform {
     }
     if (Math.abs(e.clientX - this.drag.x0) > 4) this.drag.moved = true;
     if (!this.drag.moved) return;
-    this.pauseFollow();
     const t = this.timeAt(e.clientX);
     const minLen = Math.min(0.1, this.viewSpan / 50);
     if (this.drag.mode === "new") this.loop = { start: Math.min(t, this.drag.t0), end: Math.max(t, this.drag.t0) };

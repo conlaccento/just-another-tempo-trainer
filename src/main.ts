@@ -9,6 +9,7 @@ import { TapTempo } from "./tap.ts";
 import type { BpmResult } from "./bpm.ts";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
+import { initUpdates } from "./updates.ts";
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -496,3 +497,4 @@ function scrollToPointer(clientX: number) {
   waveform.scrollTo(frac * (player?.duration ?? 0));
 }
 applyLoop(false);
+initUpdates();

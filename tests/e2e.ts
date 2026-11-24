@@ -46,9 +46,12 @@ for (const engine of [chromium, webkit]) {
     assert.equal(await page.inputValue("#origInput"), "96", "detected BPM");
 
     await page.click("#playBtn");
+    // Measure once playback is running: audio start-up latency varies between engines.
+    await page.waitForFunction(() => (window as any).__player.position > 0.1);
+    const p0 = await position(page);
     await page.waitForTimeout(2000);
-    const p100 = await position(page);
-    assert.ok(p100 > 1.5 && p100 < 2.5, `plays at normal speed (at ${p100}s after 2s)`);
+    const p100 = (await position(page)) - p0;
+    assert.ok(p100 > 1.6 && p100 < 2.4, `plays at normal speed (advanced ${p100}s in 2s)`);
 
     await page.click("#presets button:has-text('50%')");
     assert.equal(await page.inputValue("#targetInput"), "48", "practice BPM at 50%");

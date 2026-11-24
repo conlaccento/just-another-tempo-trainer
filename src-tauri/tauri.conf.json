@@ -29,7 +29,7 @@
     "targets": "all",
     "category": "Music",
     "shortDescription": "Slow down songs to practice, without changing pitch",
-    "longDescription": "Open an audio file, detect its BPM and play it back at the tempo you choose, without changing the pitch. An A\u2013B loop repeats difficult passages.",
+    "longDescription": "Open an audio file, detect its BPM and play it back at the tempo you choose, without changing the pitch. An A–B loop repeats difficult passages.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -40,6 +40,18 @@
     "macOS": {
       "minimumSystemVersion": "10.15",
       "signingIdentity": "-"
+    },
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDYyNzRCMjU5MkZERTYyMjcKUldRbll0NHZXYkowWW1ScWpIeW8xU2hSVEd4aWtqQldMa1BqRW9oeSsxSFRPOGFuQlhJenZ1NWYK",
+      "endpoints": [
+        "https://github.com/conlaccento/just-another-tempo-trainer/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
     }
   }
 }

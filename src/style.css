@@ -231,6 +231,18 @@ h2 {
   white-space: nowrap;
   cursor: pointer;
 }
+.primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+.primary.small {
+  min-height: 36px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+}
 .secondary {
   background: transparent;
   color: var(--text);
@@ -408,6 +420,51 @@ main {
 .drop-status.error {
   color: var(--error);
 }
+/* Update notice: a yellow band under the header, like the selected chips. */
+.update-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 10px 20px;
+  border-bottom: 2px solid var(--border);
+  background: var(--accent-soft);
+  color: var(--on-accent-soft);
+  font-weight: 700;
+}
+.update-banner[hidden] {
+  display: none;
+}
+.update-banner .link-button {
+  color: inherit;
+}
+.update-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.app-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 14px 20px 24px;
+  border-top: 2px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.app-footer[hidden] {
+  display: none;
+}
+
 .drop-overlay {
   position: fixed;
   inset: 0;

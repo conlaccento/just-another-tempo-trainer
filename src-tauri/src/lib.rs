@@ -19,10 +19,13 @@ fn read_audio_file(path: String) -> Result<Response, String> {
 }
 
 // Playback and analysis run in the webview (Web Audio + WASM); the native side hosts the
-// window and reads dropped files.
+// window, reads dropped files and installs updates.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![read_audio_file])
         .run(tauri::generate_context!())
         .expect("error while running Just another Tempo Trainer");
