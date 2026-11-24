@@ -98,7 +98,7 @@ git tag v1.1.0 && git push origin v1.1.0
 
 GitHub Actions builds the macOS (Apple Silicon and Intel), Windows and Linux installers and attaches them to a **draft** release. Review the draft and publish it: the apps already installed see the update only once the release is published.
 
-Updates are signed with a private key stored in the repository secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`; the matching public key is in `src-tauri/tauri.conf.json`. Keep a backup of the private key: without it, installed apps can no longer update themselves.
+Updates are signed with a private key stored in the repository secret `TAURI_SIGNING_PRIVATE_KEY` (the key has no password); the matching public key is in `src-tauri/tauri.conf.json`. Keep a backup of the private key: without it, installed apps can no longer update themselves.
 
 ### Project layout
 
