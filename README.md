@@ -12,6 +12,7 @@ Open an MP3 (or WAV, FLAC, M4A, OGG). Just another Tempo Trainer detects its BPM
 - **Practice BPM**: type the target BPM, or use the speed slider (25–150 %) and the presets (50 %, 60 %, 70 %, 75 %, 80 %, 90 %, 100 %). The tempo changes live, during playback.
 - **Pitch preserved**, using [Signalsmith Stretch](https://signalsmith-audio.co.uk/code/stretch/), a high-quality time-stretching library.
 - **A–B loop**: drag across the waveform, or press `A` / `B` while the song plays, to repeat a passage. Drag the loop edges to adjust them. Click on the waveform to jump to any point.
+- **Zoom** into the waveform to place A and B precisely: pinch on the trackpad, Ctrl/⌘ + scroll, the `+` / `−` buttons, or **A–B** to zoom to the loop. While zoomed in, a scrollbar appears and the view follows playback.
 - **Transpose** ±12 semitones, for example to match a tuned-down guitar.
 - **Per-song memory**: the app remembers the BPM, practice tempo, loop and transposition for each file.
 - Small (~3 MB) and works offline. No account, no tracking.
@@ -25,6 +26,8 @@ Open an MP3 (or WAV, FLAC, M4A, OGG). Just another Tempo Trainer detects its BPM
 | `↑` `↓` | Practice BPM ±1 |
 | `A` `B` | Set loop start / end at the current position |
 | `L` | Loop on / off |
+| `+` `−` | Zoom in / out |
+| `0` | Show the whole song |
 | `T` | Tap tempo |
 | `Home` | Back to start (or to the loop start) |
 
@@ -102,7 +105,7 @@ src/
   player.ts        playback, tempo, pitch, loop (Signalsmith Stretch)
   bpm.ts           tempo detection (pure TS, also used by the unit tests)
   bpm.worker.ts    runs bpm.ts off the UI thread
-  waveform.ts      waveform, playhead, A–B loop selection
+  waveform.ts      zoomable waveform, playhead, A–B loop selection
   tap.ts           tap tempo
   i18n.ts          English / Italian texts
 src-tauri/         desktop shell (Tauri v2)

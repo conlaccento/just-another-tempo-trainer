@@ -38,6 +38,10 @@ const speedRange = $<HTMLInputElement>("speedRange");
 const speedOut = $("speedOut");
 const loopBtn = $<HTMLButtonElement>("loopBtn");
 const pitchOut = $("pitchOut");
+const loopTimes = $("loopTimes");
+const zoomLoopBtn = $<HTMLButtonElement>("zoomLoopBtn");
+const waveScroll = $("waveScroll");
+const waveThumb = $("waveThumb");
 
 // ---- state --------------------------------------------------------------------------
 const MIN_RATE = 0.25;
@@ -85,6 +89,8 @@ const fmt = (s: number, tenths = true) => {
   const sec = s - m * 60;
   return `${m}:${(tenths ? sec.toFixed(1) : Math.floor(sec).toString()).padStart(tenths ? 4 : 2, "0")}`;
 };
+/** m:ss.cc, precise enough to place loop points on a zoomed waveform. */
+const fmtPrecise = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toFixed(2).padStart(5, "0")}`;
 const clampRate = (r: number) => Math.max(MIN_RATE, Math.min(MAX_RATE, r));
 
 function getPlayer() {
@@ -310,6 +316,9 @@ $("startBtn").addEventListener("click", goToStart);
 // ---- loop -----------------------------------------------------------------------------
 async function applyLoop(persist = true) {
   waveform.setLoop(loop, loopEnabled);
+  loopTimes.textContent = loop ? `A ${fmtPrecise(loop.start)} · B ${fmtPrecise(loop.end)}` : "";
+  loopTimes.classList.toggle("off", !loopEnabled);
+  zoomLoopBtn.disabled = !loop;
   loopBtn.setAttribute("aria-pressed", String(loopEnabled));
   loopBtn.disabled = !loop;
   $<HTMLButtonElement>("clearLoopBtn").disabled = !loop;
@@ -423,6 +432,10 @@ window.addEventListener("keydown", (e) => {
     a: () => setLoopPoint("start"),
     b: () => setLoopPoint("end"),
     l: () => loopBtn.click(),
+    "+": () => waveform.zoomBy(2),
+    "=": () => waveform.zoomBy(2),
+    "-": () => waveform.zoomBy(0.5),
+    "0": () => waveform.fit(),
     t: tap,
     Home: goToStart,
   };
@@ -442,5 +455,44 @@ waveform = new Waveform($<HTMLCanvasElement>("wave"), {
     loopEnabled = !!l;
     applyLoop();
   },
+  onViewChange: renderView,
 });
+
+// ---- zoom -------------------------------------------------------------------------------
+function renderView(start: number, span: number) {
+  const duration = player?.duration ?? 0;
+  const zoomed = duration > 0 && span < duration - 1e-6;
+  waveScroll.hidden = !zoomed;
+  if (zoomed) {
+    waveThumb.style.left = `${(start / duration) * 100}%`;
+    waveThumb.style.width = `${(span / duration) * 100}%`;
+  }
+  $<HTMLButtonElement>("zoomOutBtn").disabled = !zoomed;
+  $<HTMLButtonElement>("zoomFitBtn").disabled = !zoomed;
+  $<HTMLButtonElement>("zoomInBtn").disabled = !duration || span <= waveform.minSpan + 1e-6;
+}
+
+$("zoomInBtn").addEventListener("click", () => waveform.zoomBy(2));
+$("zoomOutBtn").addEventListener("click", () => waveform.zoomBy(0.5));
+$("zoomFitBtn").addEventListener("click", () => waveform.fit());
+zoomLoopBtn.addEventListener("click", () => loop && waveform.zoomTo(loop.start, loop.end));
+
+// Scrollbar under the zoomed waveform: drag the thumb, or click the track to jump there.
+let thumbGrab: number | null = null; // pointer offset inside the thumb, as a fraction of the track
+waveScroll.addEventListener("pointerdown", (e) => {
+  const track = waveScroll.getBoundingClientRect();
+  const thumb = waveThumb.getBoundingClientRect();
+  const onThumb = e.clientX >= thumb.left && e.clientX <= thumb.right;
+  thumbGrab = onThumb ? (e.clientX - thumb.left) / track.width : thumb.width / track.width / 2;
+  waveScroll.setPointerCapture(e.pointerId);
+  scrollToPointer(e.clientX);
+});
+waveScroll.addEventListener("pointermove", (e) => thumbGrab !== null && scrollToPointer(e.clientX));
+waveScroll.addEventListener("pointerup", () => (thumbGrab = null));
+waveScroll.addEventListener("pointercancel", () => (thumbGrab = null));
+function scrollToPointer(clientX: number) {
+  const track = waveScroll.getBoundingClientRect();
+  const frac = (clientX - track.left) / track.width - (thumbGrab ?? 0);
+  waveform.scrollTo(frac * (player?.duration ?? 0));
+}
 applyLoop(false);

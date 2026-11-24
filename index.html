@@ -40,9 +40,18 @@
       <section id="player" class="player" hidden>
         <div class="wave-wrap">
           <canvas id="wave" class="wave"></canvas>
+          <div id="waveScroll" class="wave-scroll" hidden><div id="waveThumb" class="wave-thumb"></div></div>
           <div class="wave-meta">
             <span class="time"><span id="cur" class="mono">0:00.0</span> / <span id="dur" class="mono">0:00</span></span>
-            <span class="muted small" data-i18n="loopHint"></span>
+            <span id="loopTimes" class="loop-times mono"></span>
+            <span class="muted small wave-hint" data-i18n="loopHint"></span>
+            <div class="group zoom-group" role="group" data-i18n-aria="zoom">
+              <span class="label" data-i18n="zoom"></span>
+              <button id="zoomOutBtn" class="secondary small step" type="button" data-i18n-title="zoomOut" data-i18n-aria="zoomOut">−</button>
+              <button id="zoomInBtn" class="secondary small step" type="button" data-i18n-title="zoomIn" data-i18n-aria="zoomIn">+</button>
+              <button id="zoomLoopBtn" class="secondary small" type="button" data-i18n-title="zoomLoopHint">A–B</button>
+              <button id="zoomFitBtn" class="secondary small" type="button" data-i18n="zoomFit" data-i18n-title="zoomFitHint"></button>
+            </div>
           </div>
         </div>
 
@@ -116,6 +125,8 @@
                 <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd data-i18n="scUpDown"></dd>
                 <dt><kbd>A</kbd> <kbd>B</kbd></dt><dd data-i18n="scAB"></dd>
                 <dt><kbd>L</kbd></dt><dd data-i18n="scL"></dd>
+                <dt><kbd>+</kbd> <kbd>−</kbd></dt><dd data-i18n="scZoom"></dd>
+                <dt><kbd>0</kbd></dt><dd data-i18n="scZoomFit"></dd>
                 <dt><kbd>T</kbd></dt><dd data-i18n="scT"></dd>
                 <dt><kbd>Home</kbd></dt><dd data-i18n="scHome"></dd>
               </dl>

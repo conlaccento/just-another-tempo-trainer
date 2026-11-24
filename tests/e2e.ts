@@ -81,6 +81,18 @@ for (const engine of [chromium, webkit]) {
     const afterSeek = await position(page);
     assert.ok(afterSeek > 23.9 && afterSeek < 25.5, `click seeks (at ${afterSeek}s)`);
 
+    // Zoom to the loop (12–15 s plus margins): a click in the middle now lands at ~13.5 s.
+    assert.equal(await page.isHidden("#waveScroll"), true, "no scrollbar when not zoomed");
+    await page.click("#zoomLoopBtn");
+    assert.equal(await page.isVisible("#waveScroll"), true, "scrollbar when zoomed");
+    await page.locator("body").press("Space"); // pause, so the view does not follow playback
+    await page.mouse.click(box.x + box.width * 0.5, box.y + box.height / 2);
+    const zoomedSeek = await position(page);
+    assert.ok(Math.abs(zoomedSeek - 13.5) < 0.1, `zoomed click seeks precisely (at ${zoomedSeek}s)`);
+    await page.locator("body").press("0");
+    assert.equal(await page.isHidden("#waveScroll"), true, "0 shows the whole song");
+    await page.locator("body").press("Space");
+
     // Keyboard: space pauses, arrow down lowers the practice BPM.
     await page.locator("body").press("Space");
     await page.keyboard.press("ArrowDown");
