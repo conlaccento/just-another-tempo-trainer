@@ -42,6 +42,7 @@
           <canvas id="wave" class="wave"></canvas>
           <div class="wave-meta">
             <span class="time"><span id="cur" class="mono">0:00.0</span> / <span id="dur" class="mono">0:00</span></span>
+            <span class="muted small" data-i18n="loopHint"></span>
           </div>
         </div>
 
@@ -54,6 +55,13 @@
               <svg class="i-pause" viewBox="0 0 24 24"><path d="M5 4h5v16H5zM14 4h5v16h-5z" fill="currentColor"/></svg>
             </button>
             <button id="fwdBtn" class="icon-btn" type="button" data-i18n-title="forward"><svg viewBox="0 0 24 24"><path d="m12 6 9 6-9 6zM3 6l9 6-9 6z" fill="currentColor"/></svg></button>
+          </div>
+          <div class="group loop-group" role="group" data-i18n-aria="loop">
+            <span class="label" data-i18n="loop"></span>
+            <button id="setABtn" class="secondary small" type="button" data-i18n="setA"></button>
+            <button id="setBBtn" class="secondary small" type="button" data-i18n="setB"></button>
+            <button id="loopBtn" class="secondary small toggle" type="button" aria-pressed="false" data-i18n="loopOn"></button>
+            <button id="clearLoopBtn" class="link-button" type="button" data-i18n="clearLoop"></button>
           </div>
         </div>
 
@@ -106,6 +114,8 @@
                 <dt><kbd>Space</kbd></dt><dd data-i18n="scSpace"></dd>
                 <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd data-i18n="scArrows"></dd>
                 <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd data-i18n="scUpDown"></dd>
+                <dt><kbd>A</kbd> <kbd>B</kbd></dt><dd data-i18n="scAB"></dd>
+                <dt><kbd>L</kbd></dt><dd data-i18n="scL"></dd>
                 <dt><kbd>T</kbd></dt><dd data-i18n="scT"></dd>
                 <dt><kbd>Home</kbd></dt><dd data-i18n="scHome"></dd>
               </dl>

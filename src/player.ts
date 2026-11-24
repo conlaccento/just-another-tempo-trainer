@@ -18,6 +18,11 @@ function loadStretch() {
   return factory;
 }
 
+export interface Loop {
+  start: number;
+  end: number;
+}
+
 export class Player {
   readonly ctx: AudioContext;
   private node: StretchNode | null = null;
@@ -27,13 +32,14 @@ export class Player {
   playing = false;
   rate = 1;
   semitones = 0;
+  loop: Loop | null = null;
 
   private lastPosition = 0;
   /** Time reports already in flight when we seek carry the old position: drop them. */
   private ignoreReportsUntil = 0;
   /** Called ~30 times per second while playing, with the position in the original song. */
   onTime: (t: number) => void = () => {};
-  /** Called when playback reaches the end of the song . */
+  /** Called when playback reaches the end of the song (no loop). */
   onEnded: () => void = () => {};
 
   constructor() {
@@ -62,8 +68,9 @@ export class Player {
     const right = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : left;
     await node.addBuffers([left.slice(), right.slice()]);
     this.duration = buffer.duration;
+    this.loop = null;
     this.lastPosition = 0;
-    await node.schedule({ active: false, input: 0, rate: this.rate, semitones: this.semitones });
+    await node.schedule({ active: false, input: 0, rate: this.rate, semitones: this.semitones, loopStart: 0, loopEnd: 0 });
     this.onTime(0);
   }
 
@@ -75,7 +82,7 @@ export class Player {
     if (!this.node || this.duration === 0) return;
     if (this.ctx.state !== "running") await this.ctx.resume();
     let from = this.lastPosition;
-    if (from >= this.duration - 0.05) from = 0;
+    if (from >= this.duration - 0.05) from = this.loop ? this.loop.start : 0;
     this.playing = true;
     await this.node.schedule({ active: true, input: from, rate: this.rate });
   }
@@ -107,11 +114,17 @@ export class Player {
     if (this.node) await this.node.schedule({ semitones });
   }
 
+  async setLoop(loop: Loop | null) {
+    this.loop = loop && loop.end - loop.start > 0.05 ? loop : null;
+    const l = this.loop;
+    if (this.node) await this.node.schedule({ loopStart: l ? l.start : 0, loopEnd: l ? l.end : 0 });
+  }
+
   private handleTime(t: number) {
     // While paused the worklet keeps reporting the frozen position; ignore stale reports
     // that would undo a seek made in the meantime.
     if (!this.playing || performance.now() < this.ignoreReportsUntil) return;
-    if (t >= this.duration) {
+    if (!this.loop && t >= this.duration) {
       this.lastPosition = this.duration;
       this.pause();
       this.onTime(this.duration);

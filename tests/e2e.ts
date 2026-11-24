@@ -57,13 +57,29 @@ for (const engine of [chromium, webkit]) {
     const slow = (await position(page)) - a;
     assert.ok(slow > 0.7 && slow < 1.3, `plays at half speed (advanced ${slow}s in 2s)`);
 
-    // Click on the waveform at 40% (12 s of 30 s) to seek there.
+    // Drag a loop over 40%–50% of the waveform (12 s – 15 s) and check playback stays in it.
     const box = (await page.locator("#wave").boundingBox())!;
+    await page.mouse.move(box.x + box.width * 0.4, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width * 0.5, box.y + box.height / 2, { steps: 8 });
+    await page.mouse.up();
     await page.click("#presets button:has-text('100%')");
-    await page.mouse.click(box.x + box.width * 0.4, box.y + box.height / 2);
+    assert.equal(await page.getAttribute("#loopBtn", "aria-pressed"), "true", "loop enabled after drag");
+    const samples: number[] = [];
+    for (let i = 0; i < 16; i++) {
+      await page.waitForTimeout(400);
+      samples.push(await position(page));
+    }
+    assert.ok(Math.min(...samples) >= 11.9 && Math.max(...samples) <= 15.1, `loop stays in 12–15 s (${samples.join(", ")})`);
+    assert.ok(samples.some((s, i) => i > 0 && s < samples[i - 1]), "loop wraps around");
+
+    // L turns the loop off; a click outside the region then seeks there.
+    await page.locator("body").press("l");
+    assert.equal(await page.getAttribute("#loopBtn", "aria-pressed"), "false", "L toggles the loop off");
+    await page.mouse.click(box.x + box.width * 0.8, box.y + box.height / 2);
     await page.waitForTimeout(500);
     const afterSeek = await position(page);
-    assert.ok(afterSeek > 11.9 && afterSeek < 13.5, `click seeks (at ${afterSeek}s)`);
+    assert.ok(afterSeek > 23.9 && afterSeek < 25.5, `click seeks (at ${afterSeek}s)`);
 
     // Keyboard: space pauses, arrow down lowers the practice BPM.
     await page.locator("body").press("Space");

@@ -3,7 +3,7 @@ import "@fontsource/jost/latin-500.css";
 import "@fontsource/jost/latin-700.css";
 import "./style.css";
 import { lang, t, type Strings } from "./i18n.ts";
-import { Player } from "./player.ts";
+import { Player, type Loop } from "./player.ts";
 import { Waveform } from "./waveform.ts";
 import { TapTempo } from "./tap.ts";
 import type { BpmResult } from "./bpm.ts";
@@ -36,6 +36,7 @@ const targetInput = $<HTMLInputElement>("targetInput");
 const bpmStatus = $("bpmStatus");
 const speedRange = $<HTMLInputElement>("speedRange");
 const speedOut = $("speedOut");
+const loopBtn = $<HTMLButtonElement>("loopBtn");
 const pitchOut = $("pitchOut");
 
 // ---- state --------------------------------------------------------------------------
@@ -48,6 +49,8 @@ let fileKey = "";
 let originalBpm: number | null = null;
 let rate = 1;
 let semitones = 0;
+let loop: Loop | null = null;
+let loopEnabled = false;
 let loadToken = 0;
 const tapper = new TapTempo();
 
@@ -55,6 +58,8 @@ interface Saved {
   originalBpm?: number | null;
   rate?: number;
   semitones?: number;
+  loop?: Loop | null;
+  loopEnabled?: boolean;
 }
 
 // Per-song settings are a convenience only: storage may be unavailable.
@@ -68,7 +73,7 @@ function loadSaved(key: string): Saved {
 function save() {
   if (!fileKey) return;
   try {
-    localStorage.setItem(fileKey, JSON.stringify({ originalBpm, rate, semitones } satisfies Saved));
+    localStorage.setItem(fileKey, JSON.stringify({ originalBpm, rate, semitones, loop, loopEnabled } satisfies Saved));
   } catch {
     /* ignore */
   }
@@ -122,8 +127,11 @@ async function openFile(file: File) {
     originalBpm = saved.originalBpm ? Math.round(saved.originalBpm) : null;
     rate = clampRate(saved.rate ?? 1);
     semitones = saved.semitones ?? 0;
+    loop = saved.loop && saved.loop.end <= buffer.duration ? saved.loop : null;
+    loopEnabled = !!(loop && saved.loopEnabled);
     await p.setRate(rate);
     await p.setSemitones(semitones);
+    await applyLoop(false);
     renderTempo();
     renderPitch();
     updatePlayButton();
@@ -276,14 +284,71 @@ async function togglePlay() {
   updatePlayButton();
 }
 
-const seekTo = (time: number) => player?.seek(time);
-const seekBy = (delta: number) => player && seekTo(player.position + delta);
-const goToStart = () => seekTo(0);
+function seekBy(delta: number) {
+  if (player) seekTo(player.position + delta);
+}
+
+function seekTo(time: number) {
+  if (!player) return;
+  // Jumping outside the active loop means the user wants to leave it.
+  if (loop && loopEnabled && (time < loop.start - 0.01 || time > loop.end + 0.01)) {
+    loopEnabled = false;
+    applyLoop();
+  }
+  player.seek(time);
+}
+
+function goToStart() {
+  seekTo(loop && loopEnabled ? loop.start : 0);
+}
 
 playBtn.addEventListener("click", togglePlay);
 $("backBtn").addEventListener("click", () => seekBy(-5));
 $("fwdBtn").addEventListener("click", () => seekBy(5));
 $("startBtn").addEventListener("click", goToStart);
+
+// ---- loop -----------------------------------------------------------------------------
+async function applyLoop(persist = true) {
+  waveform.setLoop(loop, loopEnabled);
+  loopBtn.setAttribute("aria-pressed", String(loopEnabled));
+  loopBtn.disabled = !loop;
+  $<HTMLButtonElement>("clearLoopBtn").disabled = !loop;
+  if (persist) save();
+  const p = player;
+  if (!p) return;
+  await p.setLoop(loop && loopEnabled ? loop : null);
+  // Starting a loop from outside it would only reach it after a long wait: jump in.
+  if (loop && loopEnabled && (p.position < loop.start || p.position >= loop.end)) await p.seek(loop.start);
+}
+
+function setLoopPoint(which: "start" | "end") {
+  if (!player?.duration) return;
+  const now = player.position;
+  const other = which === "start" ? (loop?.end ?? player.duration) : (loop?.start ?? 0);
+  let start = which === "start" ? now : other;
+  let end = which === "end" ? now : other;
+  if (end - start < 0.1) {
+    // Point placed past the other one: restart the region from here.
+    start = which === "start" ? now : Math.max(0, now - 4);
+    end = which === "end" ? now : Math.min(player.duration, now + 4);
+  }
+  loop = { start, end };
+  loopEnabled = true;
+  applyLoop();
+}
+
+$("setABtn").addEventListener("click", () => setLoopPoint("start"));
+$("setBBtn").addEventListener("click", () => setLoopPoint("end"));
+loopBtn.addEventListener("click", () => {
+  if (!loop) return;
+  loopEnabled = !loopEnabled;
+  applyLoop();
+});
+$("clearLoopBtn").addEventListener("click", () => {
+  loop = null;
+  loopEnabled = false;
+  applyLoop();
+});
 
 // ---- open / drag & drop ------------------------------------------------------------------
 $("openBtn").addEventListener("click", () => fileInput.click());
@@ -355,6 +420,9 @@ window.addEventListener("keydown", (e) => {
     ArrowRight: () => seekBy(5),
     ArrowUp: () => nudgeTarget(1),
     ArrowDown: () => nudgeTarget(-1),
+    a: () => setLoopPoint("start"),
+    b: () => setLoopPoint("end"),
+    l: () => loopBtn.click(),
     t: tap,
     Home: goToStart,
   };
@@ -367,4 +435,12 @@ window.addEventListener("keydown", (e) => {
 });
 
 // ---- init -------------------------------------------------------------------------------
-waveform = new Waveform($<HTMLCanvasElement>("wave"), seekTo);
+waveform = new Waveform($<HTMLCanvasElement>("wave"), {
+  onSeek: seekTo,
+  onLoopChange: (l) => {
+    loop = l;
+    loopEnabled = !!l;
+    applyLoop();
+  },
+});
+applyLoop(false);

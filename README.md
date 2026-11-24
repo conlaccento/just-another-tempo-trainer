@@ -4,16 +4,16 @@ Slow a song down to practise it, without changing its pitch.
 
 Open an MP3 (or WAV, FLAC, M4A, OGG). Just another Tempo Trainer detects its BPM, and you choose the tempo you want to practise at. It plays the song at that tempo straight away, in the original key.
 
-> 🇮🇹 **In breve:** apri un brano, l'app ne rileva i BPM, scegli i BPM a cui vuoi esercitarti e lo ascolti rallentato senza che cambi la tonalità. L'interfaccia è in italiano se il sistema è in italiano.
+> 🇮🇹 **In breve:** apri un brano, l'app ne rileva i BPM, scegli i BPM a cui vuoi esercitarti e lo ascolti rallentato senza che cambi la tonalità. Con il loop A–B puoi ripetere un passaggio difficile. L'interfaccia è in italiano se il sistema è in italiano.
 
 ## Features
 
 - **BPM detection** on load. You can correct the result: ÷2 / ×2 fix half- or double-tempo readings, you can type the value in, or tap along with **Tap**.
 - **Practice BPM**: type the target BPM, or use the speed slider (25–150 %) and the presets (50 %, 60 %, 70 %, 75 %, 80 %, 90 %, 100 %). The tempo changes live, during playback.
 - **Pitch preserved**, using [Signalsmith Stretch](https://signalsmith-audio.co.uk/code/stretch/), a high-quality time-stretching library.
-- **Waveform**: click or drag on it to jump to any point of the song.
+- **A–B loop**: drag across the waveform, or press `A` / `B` while the song plays, to repeat a passage. Drag the loop edges to adjust them. Click on the waveform to jump to any point.
 - **Transpose** ±12 semitones, for example to match a tuned-down guitar.
-- **Per-song memory**: the app remembers the BPM, practice tempo and transposition for each file.
+- **Per-song memory**: the app remembers the BPM, practice tempo, loop and transposition for each file.
 - Small (~3 MB) and works offline. No account, no tracking.
 
 ### Keyboard shortcuts
@@ -23,8 +23,10 @@ Open an MP3 (or WAV, FLAC, M4A, OGG). Just another Tempo Trainer detects its BPM
 | `Space` | Play / pause |
 | `←` `→` | Back / forward 5 s |
 | `↑` `↓` | Practice BPM ±1 |
+| `A` `B` | Set loop start / end at the current position |
+| `L` | Loop on / off |
 | `T` | Tap tempo |
-| `Home` | Back to start |
+| `Home` | Back to start (or to the loop start) |
 
 ## Download and install
 
@@ -97,10 +99,10 @@ GitHub Actions builds the macOS (Apple Silicon and Intel), Windows and Linux ins
 ```
 src/
   main.ts          UI wiring
-  player.ts        playback, tempo, pitch (Signalsmith Stretch)
+  player.ts        playback, tempo, pitch, loop (Signalsmith Stretch)
   bpm.ts           tempo detection (pure TS, also used by the unit tests)
   bpm.worker.ts    runs bpm.ts off the UI thread
-  waveform.ts      waveform and playhead, click to seek
+  waveform.ts      waveform, playhead, A–B loop selection
   tap.ts           tap tempo
   i18n.ts          English / Italian texts
 src-tauri/         desktop shell (Tauri v2)

@@ -9,7 +9,7 @@
   --text: #141414;
   --muted: #4b4a46;
   --border: #141414;
-  --accent: #1d3c8f; /* Bauhaus blue: links, focus, playhead */
+  --accent: #1d3c8f; /* Bauhaus blue: links, focus, playhead, loop */
   --accent-soft: #f2c12e; /* Bauhaus yellow: selected options */
   --on-accent-soft: #141414;
   --primary: #c8221b; /* Bauhaus red: main action */
@@ -22,6 +22,10 @@
   --wave: #141414;
   --wave-played: #c8221b;
   --playhead: #1d3c8f;
+  --loop-fill: #f2c12e;
+  --loop-edge: #1d3c8f;
+  --loop-fill-off: rgba(75, 74, 70, 0.14);
+  --loop-edge-off: #4b4a46;
   font-family: "Jost", "Futura", "Century Gothic", system-ui, sans-serif;
   font-size: 17px;
   line-height: 1.45;
@@ -45,6 +49,10 @@
     --wave: #f4efe4;
     --wave-played: #ff6a5c;
     --playhead: #8fb0ff;
+    --loop-fill: rgba(242, 193, 46, 0.45);
+    --loop-edge: #8fb0ff;
+    --loop-fill-off: rgba(184, 178, 165, 0.14);
+    --loop-edge-off: #b8b2a5;
   }
 }
 
@@ -447,7 +455,7 @@ main {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 16px;
 }
 .group {
@@ -455,6 +463,9 @@ main {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+}
+.loop-group .label {
+  margin-right: 4px;
 }
 
 .panels {

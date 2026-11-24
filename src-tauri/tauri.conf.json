@@ -29,7 +29,7 @@
     "targets": "all",
     "category": "Music",
     "shortDescription": "Slow down songs to practice, without changing pitch",
-    "longDescription": "Open an audio file, detect its BPM and play it back at the tempo you choose, without changing the pitch.",
+    "longDescription": "Open an audio file, detect its BPM and play it back at the tempo you choose, without changing the pitch. An A\u2013B loop repeats difficult passages.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

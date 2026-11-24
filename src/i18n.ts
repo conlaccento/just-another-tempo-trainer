@@ -21,6 +21,12 @@ const en = {
   speed: "Speed",
   transpose: "Transpose",
   semitones: "semitones",
+  loop: "A–B loop",
+  setA: "Set A",
+  setB: "Set B",
+  loopOn: "Loop",
+  clearLoop: "Clear",
+  loopHint: "Drag on the waveform to select a section",
   tempoTitle: "Tempo",
   soundTitle: "Sound",
   play: "Play",
@@ -33,8 +39,10 @@ const en = {
   scSpace: "play / pause",
   scArrows: "back / forward 5 s",
   scUpDown: "practice BPM ±1",
+  scAB: "set loop start / end",
+  scL: "loop on / off",
   scT: "tap tempo",
-  scHome: "back to start",
+  scHome: "back to start (or loop start)",
 };
 
 const it: typeof en = {
@@ -58,6 +66,12 @@ const it: typeof en = {
   speed: "Velocità",
   transpose: "Trasposizione",
   semitones: "semitoni",
+  loop: "Loop A–B",
+  setA: "Imposta A",
+  setB: "Imposta B",
+  loopOn: "Loop",
+  clearLoop: "Rimuovi",
+  loopHint: "Trascina sulla forma d'onda per selezionare un passaggio",
   tempoTitle: "Tempo",
   soundTitle: "Suono",
   play: "Riproduci",
@@ -70,8 +84,10 @@ const it: typeof en = {
   scSpace: "play / pausa",
   scArrows: "indietro / avanti 5 s",
   scUpDown: "BPM di studio ±1",
+  scAB: "inizio / fine del loop",
+  scL: "loop on / off",
   scT: "tap tempo",
-  scHome: "torna all'inizio",
+  scHome: "torna all'inizio (o all'inizio del loop)",
 };
 
 export const lang = (navigator.language || "en").toLowerCase().startsWith("it") ? "it" : "en";
