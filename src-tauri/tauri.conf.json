@@ -13,10 +13,11 @@
     "windows": [
       {
         "title": "Just another Tempo Trainer",
-        "width": 1100,
-        "height": 820,
+        "width": 1060,
+        "height": 720,
         "minWidth": 420,
-        "minHeight": 560,
+        "minHeight": 480,
+        "center": true,
         "resizable": true
       }
     ],
